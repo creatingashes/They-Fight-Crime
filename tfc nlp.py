@@ -3,25 +3,33 @@ import re
 from textblob import TextBlob
 from collections import Counter
 
+#replace with personal merged file
 tfc2 = open("tfc2.txt", "w+")
+#replace with location of webscrapped files
 tfc_files2 = glob.glob('C:/Users/Ishani Ashar/PycharmProjects/FinancialTechnology/they fight crime 2/*.txt')
 with tfc2 as outfile:
     for filename in tfc_files2:
         with open(filename) as infile:
             for line in infile:
                 line = str(line)
+                #gets rid of extra spaces
                 line = line.strip()
+                #edits all female sentences
                 if "She's" in line:
                     x = re.split("She", line)
+                    #checks for strings with multiple sentences
                     if len(x) >= 3:
                         line = ""
                         for sentence in x:
+                            #only adds lines with actual sentences and not just empty brackets
                             if len(sentence) > 10:
                                 if "She's" not in sentence:
                                     sentence = "She" + sentence
+                                #converts first letter to uppercase
                                 if sentence[0].islower():
                                     if "she's" in sentence:
                                         sentence = "S" + sentence[1:]
+                                #clears random characters at the end of sentences and adds periods if necessary
                                 while not re.search(r'(\w|[.])$', sentence):
                                     sentence = sentence[:-1]
                                     sentence = sentence.strip()
@@ -36,9 +44,11 @@ with tfc2 as outfile:
                                     sentence = sentence.strip()
                                 line += sentence + '\n'
                     else:
+                        #converts first letter to uppercase
                         if line[0].islower():
                             if "she's" in line:
                                 line = "S" + line[1:]
+                        #clears random characters at the end of sentences and adds periods if necessary
                         if re.search(r'\w$', line):
                             line += "."
                         if re.search(r'They fight crime!', line):
@@ -48,6 +58,7 @@ with tfc2 as outfile:
                         if re.search(r'^\W', line):
                             line = line[1:]
                             line = line.strip()
+                #does the same process for male sentences
                 elif "He's" in line:
                     x = re.split("He", line)
                     if len(x) >= 3:
@@ -107,8 +118,10 @@ worst_female = " "
 female = ""
 male = ""
 for sentence in des.sentences:
+    #checks polarity of female sentences
     if "She's" in sentence:
         sentP = sentence.polarity
+        #stores best and worst polarity
         bF = TextBlob(best_female).polarity
         wF = TextBlob(worst_female).polarity
         if sentP > bF:
@@ -116,6 +129,7 @@ for sentence in des.sentences:
         if sentP < wF:
             worst_female = str(sentence)
     else:
+        #repeats process for male sentences
         sentP = sentence.polarity
         bM = TextBlob(best_male).polarity
         wM = TextBlob(worst_male).polarity
@@ -123,6 +137,7 @@ for sentence in des.sentences:
             best_male = str(sentence)
         if sentP < wM:
             worst_male = str(sentence)
+#prints the best and worst characters in the joke form (male + female + They fight crime!)
 print("Best: " + best_male + " " + best_female + " They fight crime!")
 print("Worst: " + worst_male + " " + worst_female + " They fight crime!")
 
@@ -137,6 +152,7 @@ for lines in words:
     elif "He's" in lines:
         male += lines
         male += "\n"
+#counts number of each description occurance and prints the 10 most common for males and females
 counterF = Counter(female.splitlines())
 print("10 Most Common Female: ")
 print(counterF.most_common(10))
